@@ -7,6 +7,9 @@ import {
   Input,
   Label,
 } from './ContactForm.styled';
+import { addContact } from 'redux/contactsSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { getContacts } from 'redux/selectors';
 
 const validateName =
   "^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$";
@@ -36,7 +39,29 @@ const initialValues = {
   number: '',
 };
 
-export const ContactForm = ({ handleSubmit }) => {
+export const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+
+  const handleSubmit = (values, { resetForm }) => {
+    const checkedContact = contacts.find(
+      contact => contact.name.toLowerCase() === values.name.toLowerCase()
+    );
+
+    if (checkedContact) {
+      alert(`a contact ${values.name} already exists`);
+      return;
+    }
+
+    dispatch(addContact(values));
+    resetForm({
+      name: '',
+      number: '',
+    });
+  };
+
+
+
   return (
     <Formik
       initialValues={initialValues}
@@ -46,7 +71,10 @@ export const ContactForm = ({ handleSubmit }) => {
       <FormContact autoComplete="off">
         <Label>
           Name
-          <Input type="text" name="name"></Input>
+          <Input
+            type="text"
+            name="name"
+          ></Input>
           <ErrorText component="div" name="name" />
         </Label>
         <Label>
